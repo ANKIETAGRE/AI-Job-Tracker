@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <base target="_top">
+
+  <style>
+
+    body {
+      font-family: Arial, sans-serif;
+      padding: 25px;
+      background: #111;
+      color: white;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #4a90e2;
+    }
+
+    .description {
+      color: #aaa;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 13px;
+      border-radius: 7px;
+      border: 1px solid #555;
+      background: #222;
+      color: white;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #4a90e2;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 7px;
+      background: #4a90e2;
+      color: white;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #357abd;
+    }
+
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+
+    #loading {
+      display: none;
+      margin-top: 15px;
+      text-align: center;
+      color: #aaa;
+    }
+
+    #result {
+      display: none;
+      margin-top: 18px;
+      padding: 15px;
+      border-radius: 7px;
+      background: #1d1d1d;
+    }
+
+    .success {
+      color: #4caf50;
+    }
+
+    .error {
+      color: #ff5252;
+    }
+
+    .job-info {
+      line-height: 1.7;
+      margin-top: 10px;
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+  <h2>🚀 One-Click Apply</h2>
+
+  <div class="description">
+    Paste a job URL below. The tracker will extract the
+    company, role, location and source and create a
+    <b>Want to Apply</b> entry.
+  </div>
+
+
+  <input
+    id="jobUrl"
+    type="text"
+    placeholder="https://example.com/job/..."
+    autocomplete="off"
+  >
+
+
+  <button
+    id="addButton"
+    onclick="addJob()"
+  >
+    ADD JOB
+  </button>
+
+
+  <div id="loading">
+    ⏳ Extracting job information...
+  </div>
+
+
+  <div id="result"></div>
+
+
+<script>
+
+function addJob() {
+
+  const input =
+    document.getElementById("jobUrl");
+
+  const button =
+    document.getElementById("addButton");
+
+  const loading =
+    document.getElementById("loading");
+
+  const resultBox =
+    document.getElementById("result");
+
+
+  const url =
+    input.value.trim();
+
+
+  if (!url) {
+
+    showError(
+      "Please paste a job URL."
+    );
+
+    return;
+  }
+
+
+  if (
+    !url.startsWith("http://") &&
+    !url.startsWith("https://")
+  ) {
+
+    showError(
+      "Please enter a valid URL beginning with http:// or https://"
+    );
+
+    return;
+  }
+
+
+  button.disabled = true;
+
+  loading.style.display = "block";
+
+  resultBox.style.display = "none";
+
+
+  google.script.run
+
+    .withSuccessHandler(
+      handleSuccess
+    )
+
+    .withFailureHandler(
+      handleError
+    )
+
+    .processApplyUrl(url);
+
+}
+
+
+function handleSuccess(data) {
+
+  const button =
+    document.getElementById("addButton");
+
+  const loading =
+    document.getElementById("loading");
+
+  const resultBox =
+    document.getElementById("result");
+
+
+  button.disabled = false;
+
+  loading.style.display = "none";
+
+
+  if (!data || !data.success) {
+
+    showError(
+      "Unable to add the job."
+    );
+
+    return;
+  }
+
+
+  resultBox.innerHTML = `
+
+    <div class="success">
+      ✅ Job Added Successfully
+    </div>
+
+    <div class="job-info">
+
+      <b>Application ID:</b>
+      ${escapeHtml(data.applicationId)}
+      <br>
+
+      <b>Company:</b>
+      ${escapeHtml(data.company || "Not found")}
+      <br>
+
+      <b>Role:</b>
+      ${escapeHtml(data.role || "Not found")}
+      <br>
+
+      <b>Location:</b>
+      ${escapeHtml(data.location || "Not found")}
+      <br>
+
+      <b>Source:</b>
+      ${escapeHtml(data.source || "Website")}
+      <br>
+
+      <b>Status:</b>
+      Want to Apply
+
+    </div>
+
+  `;
+
+
+  resultBox.style.display = "block";
+
+
+  document.getElementById(
+    "jobUrl"
+  ).value = "";
+
+}
+
+
+function handleError(error) {
+
+  const button =
+    document.getElementById("addButton");
+
+  const loading =
+    document.getElementById("loading");
+
+
+  button.disabled = false;
+
+  loading.style.display = "none";
+
+
+  showError(
+    error.message ||
+    "Something went wrong."
+  );
+
+}
+
+
+function showError(message) {
+
+  const resultBox =
+    document.getElementById("result");
+
+
+  resultBox.innerHTML = `
+
+    <div class="error">
+      ❌ ${escapeHtml(message)}
+    </div>
+
+  `;
+
+
+  resultBox.style.display = "block";
+}
+
+
+function escapeHtml(text) {
+
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+</script>
+
+</body>
+
+</html>
