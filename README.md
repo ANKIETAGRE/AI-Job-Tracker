@@ -7,6 +7,7 @@ The system automatically processes job-related emails, extracts application info
 
 ---
 
+
 ## ✨ Features
 
 ### 📧 AI-Powered Gmail Tracking
@@ -35,7 +36,6 @@ The Google Sheets dashboard provides:
 
 The project uses AI to analyze job-related emails and extract structured information such as:
 
-```text
 Company
 Role
 Status
@@ -160,4 +160,4 @@ The Phase 15 access token should also remain private.
 
 Aniket Agre
 
-AI/ML | Generative AI | Python | Google Apps Script | Automation
+AI/ML | Generative AI | Python | Google Apps Script | Automation 
