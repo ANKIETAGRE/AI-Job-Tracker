@@ -71,3 +71,93 @@ Recruiter Email
               ┌────────────┼────────────┐
               ▼            ▼            ▼
            Gmail        Calendar      Reminders
+
+
+
+🔄 How It Works
+1. Gmail Automation
+New Job Email
+      ↓
+Gmail
+      ↓
+Apps Script
+      ↓
+AI Classification
+      ↓
+Extract Job Information
+      ↓
+Find Existing Application
+      ↓
+Update / Create Application
+      ↓
+Google Sheets
+
+
+2. Browser Extension
+Job Website
+     ↓
+🚀 Add to Tracker
+     ↓
+Extract Job Information
+     ↓
+Apps Script Web App
+     ↓
+Save Job
+     ↓
+Update Dashboard
+
+3. Application Status
+
+The tracker supports statuses such as:
+
+Want to Apply
+Applied
+Application Received
+Resume Shortlisted
+OA Received
+OA Submitted
+Technical Interview
+HR Interview
+Documents Requested
+Offer
+Rejected
+Withdrawn
+No Response
+Closed
+
+
+📊 Dashboard
+
+The dashboard provides a centralized view of job applications.
+
+Applications
+Shortlisted
+Interviews
+Offers
+Rejected
+
+It also displays:
+Upcoming Deadlines
+Recent Activity
+Next Actions
+
+🔐 Security
+
+API keys, access tokens, passwords, and private credentials must never be committed to this repository.
+
+The public configuration intentionally does not contain the actual OpenRouter API key.
+
+Example:
+
+OPENROUTER_API_KEY: ""
+
+The actual API key should be configured privately in the Apps Script environment.
+
+The Phase 15 access token should also remain private.
+
+
+👨‍💻 Author
+
+Aniket Agre
+
+AI/ML | Generative AI | Python | Google Apps Script | Automation
