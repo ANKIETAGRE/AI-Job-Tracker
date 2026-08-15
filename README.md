@@ -74,6 +74,35 @@ Recruiter Email
 
 
 
+AI-Job-Tracker/
+│
+├── apps-script/
+│   ├── Code.gs
+│   ├── apply.gs
+│   ├── gmail.gs
+│   ├── sheet.gs
+│   ├── gemini.gs
+│   ├── calendar.gs
+│   ├── config.gs
+│   ├── classifier.gs
+│   ├── status.gs
+│   ├── dashboard.gs
+│   ├── email.gs
+│   ├── ui.gs
+│   ├── phase15_webapp.gs
+│   └── ApplyDialog.html
+│
+├── chrome-extension/
+│   ├── manifest.json
+│   ├── content.js
+│   ├── service-worker.js
+│   ├── options.html
+│   └── options.js
+│
+├── README.md       ← ALL the README content goes here
+└── .gitignore
+
+
 🔄 How It Works
 1. Gmail Automation
 New Job Email
