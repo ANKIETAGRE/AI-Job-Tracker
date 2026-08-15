@@ -45,3 +45,29 @@ Location
 Next Action
 Summary
 Recruiter Email
+
+🏗️ Architecture
+
+
+                    AI JOB TRACKER
+                           │
+            ┌──────────────┴──────────────┐
+            │                             │
+          Gmail                     Browser Extension
+            │                             │
+            ▼                             ▼
+      Apps Script                 Apps Script Web App
+            │                             │
+            └──────────────┬──────────────┘
+                           ▼
+                    AI Job Processing
+                           │
+                           ▼
+                    Google Sheets
+                           │
+                           ▼
+                       Dashboard
+                           │
+              ┌────────────┼────────────┐
+              ▼            ▼            ▼
+           Gmail        Calendar      Reminders
