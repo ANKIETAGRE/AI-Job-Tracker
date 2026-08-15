@@ -75,9 +75,12 @@ Recruiter Email
 
 
 AI-Job-Tracker/
-│
+
+
 ├── apps-script/
+
 │   ├── Code.gs
+
 │   ├── apply.gs
 │   ├── gmail.gs
 │   ├── sheet.gs
