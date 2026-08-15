@@ -1,1 +1,67 @@
+# ==============================
+# SECRETS & CREDENTIALS
+# ==============================
 
+.env
+.env.*
+*.env
+
+credentials/
+secrets/
+*.key
+*.pem
+*.p12
+
+# API keys / local secret files
+secrets.json
+credentials.json
+config.local.js
+config.local.gs
+
+
+# ==============================
+# GOOGLE APPS SCRIPT
+# ==============================
+
+.clasp.json
+
+
+# ==============================
+# NODE / JAVASCRIPT
+# ==============================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+
+# ==============================
+# EDITORS
+# ==============================
+
+.vscode/
+.idea/
+
+
+# ==============================
+# OPERATING SYSTEM
+# ==============================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+
+# ==============================
+# BUILD / TEMP FILES
+# ==============================
+
+dist/
+build/
+tmp/
+temp/
+
+*.log
+*.tmp
+*.bak
