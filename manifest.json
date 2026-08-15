@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "AI Job Tracker \u2013 Add to Tracker",
+  "version": "1.0.0",
+  "description": "Adds jobs from supported career sites directly to the AI Job Tracker.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://*.linkedin.com/*",
+    "https://*.naukri.com/*",
+    "https://*.unstop.com/*",
+    "https://*.greenhouse.io/*",
+    "https://*.myworkdayjobs.com/*",
+    "https://*.lever.co/*",
+    "https://jobs.ashbyhq.com/*",
+    "https://script.google.com/*",
+    "https://script.googleusercontent.com/*"
+  ],
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "action": {
+    "default_title": "AI Job Tracker"
+  },
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.linkedin.com/*",
+        "https://*.naukri.com/*",
+        "https://*.unstop.com/*",
+        "https://*.greenhouse.io/*",
+        "https://*.myworkdayjobs.com/*",
+        "https://*.lever.co/*",
+        "https://jobs.ashbyhq.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
