@@ -1,0 +1,748 @@
+(() => {
+  "use strict";
+
+  // ==========================================
+  // PREVENT DUPLICATE BUTTON
+  // ==========================================
+
+  if (window.top !== window.self) return;
+
+  if (document.getElementById("ai-job-tracker-button")) {
+    return;
+  }
+
+  const HOST = window.location.hostname.toLowerCase();
+
+  // ==========================================
+  // CLEAN TEXT
+  // ==========================================
+
+  function clean(value) {
+    return String(value || "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  // ==========================================
+  // GET FIRST USEFUL TEXT
+  // ==========================================
+
+  function firstText(selectors) {
+    for (const selector of selectors) {
+      try {
+        const nodes =
+          document.querySelectorAll(selector);
+
+        for (const node of nodes) {
+          const value =
+            clean(node.textContent);
+
+          if (
+            value &&
+            value.length < 250
+          ) {
+            return value;
+          }
+        }
+      } catch (error) {
+        console.warn(
+          "AI Job Tracker selector error:",
+          selector,
+          error
+        );
+      }
+    }
+
+    return "";
+  }
+
+  // ==========================================
+  // META TAG
+  // ==========================================
+
+  function meta(name) {
+    const el =
+      document.querySelector(
+        `meta[property="${name}"]`
+      ) ||
+      document.querySelector(
+        `meta[name="${name}"]`
+      );
+
+    return clean(
+      el?.content
+    );
+  }
+
+  // ==========================================
+  // DETECT WEBSITE
+  // ==========================================
+
+  function siteName() {
+
+    if (
+      HOST.includes("linkedin")
+    ) {
+      return "LinkedIn";
+    }
+
+    if (
+      HOST.includes("naukri")
+    ) {
+      return "Naukri";
+    }
+
+    if (
+      HOST.includes("unstop")
+    ) {
+      return "Unstop";
+    }
+
+    if (
+      HOST.includes("greenhouse")
+    ) {
+      return "Greenhouse";
+    }
+
+    if (
+      HOST.includes("workday")
+    ) {
+      return "Workday";
+    }
+
+    if (
+      HOST.includes("lever")
+    ) {
+      return "Lever";
+    }
+
+    if (
+      HOST.includes("ashby")
+    ) {
+      return "Ashby";
+    }
+
+    return "Website";
+  }
+
+  // ==========================================
+  // COMPANY FROM URL
+  // ==========================================
+
+  function companyFromUrl() {
+
+    const parts =
+      HOST.split(".");
+
+    // Ashby
+    if (
+      HOST.includes("ashbyhq.com")
+    ) {
+
+      const pathParts =
+        window.location.pathname
+          .split("/")
+          .filter(Boolean);
+
+      return (
+        pathParts[0] || ""
+      );
+    }
+
+    // Greenhouse
+    if (
+      HOST.includes("greenhouse.io")
+    ) {
+
+      return (
+        parts.length >= 3
+          ? parts[0]
+          : ""
+      );
+    }
+
+    // Lever
+    if (
+      HOST.includes("lever.co")
+    ) {
+
+      return (
+        parts.length >= 3
+          ? parts[0]
+          : ""
+      );
+    }
+
+    return "";
+  }
+
+  // ==========================================
+  // EXTRACT JOB
+  // ==========================================
+
+  function extractJob() {
+
+    let role = "";
+    let company = "";
+    let jobLocation = "";
+
+    // ==========================================
+    // STRUCTURED DATA
+    // ==========================================
+
+    const ldScripts =
+      [
+        ...document.querySelectorAll(
+          'script[type="application/ld+json"]'
+        )
+      ];
+
+    for (
+      const script of ldScripts
+    ) {
+
+      try {
+
+        const data =
+          JSON.parse(
+            script.textContent
+          );
+
+        const items =
+          Array.isArray(data)
+            ? data
+            : [data];
+
+        for (
+          const item of items
+        ) {
+
+          if (
+            item?.["@type"] ===
+            "JobPosting"
+          ) {
+
+            role ||=
+              clean(
+                item.title
+              );
+
+            company ||=
+              clean(
+                item
+                  .hiringOrganization
+                  ?.name
+              );
+
+            jobLocation ||=
+              clean(
+                item
+                  .jobLocation
+                  ?.address
+                  ?.addressLocality ||
+                item
+                  .jobLocation
+                  ?.name
+              );
+          }
+        }
+
+      } catch (error) {
+
+        console.warn(
+          "AI Job Tracker JSON-LD error:",
+          error
+        );
+      }
+    }
+
+    // ==========================================
+    // LINKEDIN
+    // ==========================================
+
+    if (
+      HOST.includes("linkedin")
+    ) {
+
+      role ||=
+        firstText([
+          "h1.top-card-layout__title",
+          "h1.jobs-unified-top-card__job-title",
+          "h1"
+        ]);
+
+      company ||=
+        firstText([
+          ".top-card-layout__card .topcard__org-name-link",
+          ".jobs-unified-top-card__company-name",
+          ".top-card-layout__card a[href*='/company/']"
+        ]);
+
+      jobLocation ||=
+        firstText([
+          ".top-card-layout__card .topcard__flavor--bullet",
+          ".jobs-unified-top-card__bullet"
+        ]);
+    }
+
+    // ==========================================
+    // NAUKRI
+    // ==========================================
+
+    else if (
+      HOST.includes("naukri")
+    ) {
+
+      role ||=
+        firstText([
+          "h1.styles_jd-header-title__rZwM1",
+          "h1.styles_jd-header-title__HkYfQ",
+          "h1"
+        ]);
+
+      company ||=
+        firstText([
+          ".styles_jd-header-comp-name__MvqAI a",
+          ".jd-header-comp-name a",
+          "a[href*='/company/']"
+        ]);
+
+      jobLocation ||=
+        firstText([
+          ".styles_jd-job-desc-container__txf6s .styles_jhc__location__bF8tR",
+          ".loc"
+        ]);
+    }
+
+    // ==========================================
+    // UNSTOP
+    // ==========================================
+
+    else if (
+      HOST.includes("unstop")
+    ) {
+
+      role ||=
+        firstText([
+          "h1",
+          "[class*='job-title']",
+          "[class*='title']"
+        ]);
+
+      company ||=
+        firstText([
+          "[class*='company-name']",
+          "[class*='companyName']",
+          "a[href*='/company/']"
+        ]);
+
+      jobLocation ||=
+        firstText([
+          "[class*='location']",
+          "[class*='Location']"
+        ]);
+    }
+
+    // ==========================================
+    // GREENHOUSE
+    // ==========================================
+
+    else if (
+      HOST.includes("greenhouse")
+    ) {
+
+      role ||=
+        firstText([
+          "#app h1",
+          ".job__title h1",
+          "h1"
+        ]);
+
+      company ||=
+        firstText([
+          ".company-name",
+          ".job-posting-header .company-name"
+        ]);
+
+      company ||=
+        companyFromUrl();
+
+      jobLocation ||=
+        firstText([
+          ".location",
+          ".job__location"
+        ]);
+    }
+
+    // ==========================================
+    // WORKDAY
+    // ==========================================
+
+    else if (
+      HOST.includes("myworkdayjobs.com")
+    ) {
+
+      role ||=
+        firstText([
+          "[data-automation-id='jobPostingHeader']",
+          "h1",
+          "[data-automation-id='jobPostingTitle']"
+        ]);
+
+      company ||=
+        firstText([
+          "[data-automation-id='jobPostingCompany']",
+          "[data-automation-id='companyName']"
+        ]);
+
+      jobLocation ||=
+        firstText([
+          "[data-automation-id='locations']",
+          "[data-automation-id='jobPostingLocation']"
+        ]);
+    }
+
+    // ==========================================
+    // LEVER
+    // ==========================================
+
+    else if (
+      HOST.includes("lever.co")
+    ) {
+
+      role ||=
+        firstText([
+          ".posting-headline h2",
+          ".posting-headline h1",
+          "h1",
+          "h2"
+        ]);
+
+      company ||=
+        firstText([
+          ".main-header-logo img[alt]",
+          ".main-header-logo",
+          ".posting-headline .company-name"
+        ]);
+
+      company ||=
+        companyFromUrl();
+
+      jobLocation ||=
+        firstText([
+          ".posting-categories .location",
+          ".posting-categories"
+        ]);
+    }
+
+    // ==========================================
+    // ASHBY
+    // ==========================================
+
+    else if (
+      HOST.includes("ashbyhq.com")
+    ) {
+
+      role ||=
+        firstText([
+          "h1",
+          "[class*='job-title']"
+        ]);
+
+      company ||=
+        firstText([
+          "[class*='company']",
+          "a[href*='ashbyhq.com']"
+        ]);
+
+      company ||=
+        companyFromUrl();
+
+      jobLocation ||=
+        firstText([
+          "[class*='location']"
+        ]);
+    }
+
+    // ==========================================
+    // GENERIC FALLBACK
+    // ==========================================
+
+    role ||=
+      meta("og:title") ||
+      clean(document.title);
+
+    company ||=
+      meta("og:site_name") ||
+      companyFromUrl();
+
+    // ==========================================
+    // REMOVE INVALID COMPANY VALUES
+    // ==========================================
+
+    if (
+      /^(linkedin|naukri|unstop|greenhouse|workday|lever|ashby)$/i
+        .test(company)
+    ) {
+
+      company = "";
+    }
+
+    // ==========================================
+    // RETURN JOB DATA
+    // ==========================================
+
+    return {
+
+      // IMPORTANT:
+      // Use window.location.href.
+      // Do NOT use location.href because
+      // "location" is also our job-location variable.
+
+      url:
+        window.location.href,
+
+      company:
+        clean(company),
+
+      role:
+        clean(role),
+
+      location:
+        clean(jobLocation),
+
+      source:
+        siteName()
+    };
+  }
+
+  // ==========================================
+  // CREATE BUTTON
+  // ==========================================
+
+  const button =
+    document.createElement("button");
+
+  button.id =
+    "ai-job-tracker-button";
+
+  button.type =
+    "button";
+
+  button.textContent =
+    "🚀 Add to Tracker";
+
+  Object.assign(
+    button.style,
+    {
+
+      position: "fixed",
+
+      right: "20px",
+
+      bottom: "20px",
+
+      zIndex: "2147483647",
+
+      border: "0",
+
+      borderRadius: "12px",
+
+      padding: "12px 18px",
+
+      background: "#4285F4",
+
+      color: "#fff",
+
+      font: "600 14px Arial, sans-serif",
+
+      boxShadow:
+        "0 4px 14px rgba(0,0,0,.25)",
+
+      cursor: "pointer",
+
+      transition:
+        "transform .15s ease"
+    }
+  );
+
+  // ==========================================
+  // HOVER
+  // ==========================================
+
+  button.addEventListener(
+    "mouseenter",
+    () => {
+
+      if (!button.disabled) {
+
+        button.style.transform =
+          "translateY(-1px)";
+      }
+    }
+  );
+
+  button.addEventListener(
+    "mouseleave",
+    () => {
+
+      button.style.transform =
+        "translateY(0)";
+    }
+  );
+
+  // ==========================================
+  // ADD JOB
+  // ==========================================
+
+  button.addEventListener(
+    "click",
+    async () => {
+
+      const job =
+        extractJob();
+
+      console.log(
+        "AI Job Tracker - Extracted job:",
+        job
+      );
+
+      // ========================================
+      // BASIC URL VALIDATION
+      // ========================================
+
+      if (
+        !job.url ||
+        !/^https?:\/\//i.test(job.url)
+      ) {
+
+        alert(
+          "AI Job Tracker\n\n" +
+          "This page does not contain a valid job URL."
+        );
+
+        return;
+      }
+
+      // ========================================
+      // DISABLE BUTTON
+      // ========================================
+
+      button.disabled =
+        true;
+
+      button.textContent =
+        "⏳ Adding...";
+
+      try {
+
+        // ======================================
+        // SEND TO SERVICE WORKER
+        // ======================================
+
+        const response =
+          await chrome.runtime.sendMessage(
+            {
+              type: "ADD_JOB",
+              job: job
+            }
+          );
+
+        console.log(
+          "AI Job Tracker - Response:",
+          response
+        );
+
+        // ======================================
+        // CHECK RESPONSE
+        // ======================================
+
+        if (
+          !response?.success
+        ) {
+
+          throw new Error(
+            response?.message ||
+            "Unable to add job."
+          );
+        }
+
+        // ======================================
+        // SUCCESS
+        // ======================================
+
+        button.textContent =
+          "✅ Added";
+
+        button.style.background =
+          "#34A853";
+
+        setTimeout(
+          () => {
+
+            button.textContent =
+              "🚀 Add to Tracker";
+
+            button.style.background =
+              "#4285F4";
+
+            button.disabled =
+              false;
+
+          },
+          2500
+        );
+
+      } catch (error) {
+
+        console.error(
+          "AI Job Tracker:",
+          error
+        );
+
+        // ======================================
+        // ERROR STATE
+        // ======================================
+
+        button.textContent =
+          "❌ Failed";
+
+        button.style.background =
+          "#EA4335";
+
+        setTimeout(
+          () => {
+
+            button.textContent =
+              "🚀 Add to Tracker";
+
+            button.style.background =
+              "#4285F4";
+
+            button.disabled =
+              false;
+
+          },
+          3000
+        );
+
+        alert(
+          "AI Job Tracker\n\n" +
+          (
+            error?.message ||
+            "Unable to add this job."
+          )
+        );
+      }
+    }
+  );
+
+  // ==========================================
+  // ADD BUTTON TO PAGE
+  // ==========================================
+
+  document.documentElement.appendChild(
+    button
+  );
+
+})();
